@@ -3,12 +3,10 @@
  * Credits to Kevin Lamping
  */
 
-const { pathExistsSync, readFileSync } = require('fs-extra');
-const { join } = require('path');
 const { URL } = require('url');
 
 describe('Downloads', () => {
-  it('should download the file', () => {
+  it('should download and verify the file', () => {
     // Go to the correct page for testing the download functionality
     browser.url('./download');
 
@@ -36,7 +34,7 @@ describe('Downloads', () => {
 
     // Get just the filename at the end of the array
     // e.g.  'some-file.txt'
-    const fileName = splitPath.splice(-1)[ 0 ];
+    const fileName = splitPath.splice(-1).pop();
 
     /**
      * THIS IS EXTRA. BECAUSE WE HAVE A TEXT FILE WE CAN VERIFY TEXT
@@ -46,13 +44,26 @@ describe('Downloads', () => {
      * 2. THE FILE CAN BE OPENED AND THE EXPECTED CONTENT IS IN THERE
      */
 
-    // Create the filename to the path where the downloads are stored
+      // Create the filename to the path where the downloads are stored
     const filePath = `${ browser.downloadFolder }${ fileName }`;
 
 
     browser.waitUntil(() => {
-        browser.url(`file:///${filePath}`);
-        return !$('body').getText().toLowerCase().includes('not found');
+        // Load the file in the browsser
+        browser.url(`file:///${ filePath }`);
+
+        // Get the text from the body element
+        const browserText = $('body').getText().toLowerCase();
+
+        // Check there is no loading error
+        return (
+          // For Chrome
+          !browserText.includes('err_file_not_found') &&
+          // For Firefox
+          !browserText.includes('file not found') &&
+          // For Safari
+          !browserText.includes('Can\'t find the file')
+        );
       },
       15000);
 

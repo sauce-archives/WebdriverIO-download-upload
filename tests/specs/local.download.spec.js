@@ -8,7 +8,7 @@ const { join } = require('path');
 const { URL } = require('url');
 
 describe('Downloads', () => {
-  it('should download the file', () => {
+  it('should download and verify the file', () => {
     // Go to the correct page for testing the download functionality
     browser.url('./download');
 
@@ -36,7 +36,7 @@ describe('Downloads', () => {
 
     // Get just the filename at the end of the array
     // e.g.  'some-file.txt'
-    const fileName = splitPath.splice(-1)[ 0 ];
+    const fileName = splitPath.splice(-1).pop();
 
     // Determine the browser name that is currently running,
     // this is needed to determine the download folder
@@ -44,7 +44,7 @@ describe('Downloads', () => {
 
     // Join the filename to the path where the downloads are stored
     // based on the browser that is used
-    const filePath = join(global.downloadDir[browserName], fileName);
+    const filePath = join(global.downloadDir[ browserName ], fileName);
 
     // Wait for the file to be fully downloaded
     browser.waitUntil(() => pathExistsSync(filePath), 10000);

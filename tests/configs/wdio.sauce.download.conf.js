@@ -2,20 +2,6 @@ const config = require('./wdio.shared.conf').config;
 // Needed to make a unique build number
 const milliseconds = new Date().getMilliseconds();
 
-/**
- * These are the locations that are used on Sauce Labs to store the
- * downloaded file on the VM
- */
-const subFolder = 'Downloads';
-// Add the global download folders here
-const downloadFolders = {
-  linux: `/home/chef/${ subFolder }/`,
-  mac: `/Users/chef/${ subFolder }/`,
-  windows: `C:\\Users\\sauce\\${ subFolder }\\`,
-  // Windows Chrome and FF images have a different root user
-  windowsCF: `C:\\Users\\Administrator\\${ subFolder }\\`,
-};
-
 // =================
 // Service Providers
 // =================
@@ -25,8 +11,6 @@ config.services = [ 'sauce', 'firefox-profile' ];
 // For the options see
 // http://kb.mozillazine.org/Firefox_:_FAQs_:_About:config_Entries
 config.firefoxProfile = {
-  'browser.download.dir': downloadFolders.windowsCF,
-  'browser.download.folderList': 2,
   // Check the allowed MIME types here
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
   'browser.helperApps.neverAsk.saveToDisk': 'application/octet-stream',
@@ -50,12 +34,6 @@ config.capabilities = [
     browserName: 'chrome',
     platform: 'Windows 10',
     screenResolution: '1440x900',
-    // this overrides the default chrome download directory with our temporary one
-    chromeOptions: {
-      prefs: {
-        'download.default_directory': downloadFolders.windowsCF,
-      }
-    },
     build: `download-test.${ milliseconds }`,
     name: 'windows-download',
   },
@@ -90,12 +68,6 @@ config.capabilities = [
     browserName: 'chrome',
     platform: 'macOS 10.14',
     screenResolution: '1400x1050',
-    // this overrides the default chrome download directory with our temporary one
-    chromeOptions: {
-      prefs: {
-        'download.default_directory': downloadFolders.mac,
-      }
-    },
     build: `download-test.${ milliseconds }`,
     name: 'mac-upload',
   },
@@ -122,15 +94,26 @@ config.capabilities = [
  * The `before`-hook is used to determine the platform location on the current running VM
  */
 config.before = (capabilities, specs) => {
+  /**
+   * These are the locations that are used on Sauce Labs to store the
+   * downloaded file on the VM
+   */
+  const downloadFolders = {
+    linux: '/home/chef/Downloads/',
+    mac: '/Users/chef/Downloads/',
+    // Windows Chrome and FF images have a different root user
+    windowsCF: 'C:\\Users\\Administrator\\Downloads\\',
+  };
 
-  // Check the plaform name
+  // Check the platform name to to determine the download folder
   const isChrome = capabilities.browserName.toLowerCase().includes('chrome');
   const isFirefox = capabilities.browserName.toLowerCase().includes('firefox');
   const isWindows = capabilities.platform.toLowerCase().includes('windows');
   const isMac = capabilities.platform.toLowerCase().includes('macos');
   const isWindowsChromeFirefox = isWindows && (isChrome || isFirefox);
 
-  browser.downloadFolder = downloadFolders[ isWindowsChromeFirefox ? 'windowsCF' : isWindows ? 'windows' : isMac ? 'mac' : 'linux' ];
+  // Add the download folder to the browser object to easily access it during tests
+  browser.downloadFolder = downloadFolders[ isWindowsChromeFirefox ? 'windowsCF' : isMac ? 'mac' : 'linux' ];
 };
 
 exports.config = config;

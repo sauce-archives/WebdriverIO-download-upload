@@ -1,4 +1,4 @@
-#Down and Uploading files
+# Down and Uploading files
 
 ## Introduction
 This repo will explain how to test down and uploading on Sauce Labs VM's with **WebdriverIO V4.**
