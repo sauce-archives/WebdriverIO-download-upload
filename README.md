@@ -12,6 +12,8 @@ In comparison to what many sites say, files **can** be downloaded with Selenium.
 - downloading files with Selenium can be very time consuming. Creating and debugging a script can cost a lot of time and there might be faster and better ways do test downloads (depending on the business case)
 - downloaded files can be *verified* on local machines, because you have rights on a local machine to check the file structure, but cloud machine don't give you the possibility to access the directory structure (see [Sauce Labs Download Test](#sauce-labs-download-test) for a possible solution)
 
+> **NOTE:** The files that have been downloaded to the Sauce Labs VM can **NOT** be downloaded from the Sauce Labs VM to the local machine / CI-instance!
+
 ### Run the download tests
 For more information about running the download tests in this project please check [here](#run-tests).
 
