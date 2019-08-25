@@ -1,7 +1,7 @@
 # Down and Uploading files
 
 ## Introduction
-This repo will explain how to test down and uploading on Sauce Labs VM's with **WebdriverIO V4.**
+This repo will explain how to test down and uploading on Sauce Labs VM's with **WebdriverIO V5.**, for support of V4 see [here](https://github.com/saucelabs-sample-test-frameworks/WebdriverIO-download-upload/tree/V4).
 
 > Make sure the `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` are set as environment variables. They will be used for uploading and test execution.
 > Also make sure Chrome and Firefox are installed on the local machine to execute the local tests
@@ -29,7 +29,7 @@ config.capabilities = [
   {
     browserName: 'chrome',
     // this overrides the default chrome download directory with our temporary one
-    chromeOptions: {
+    'goog:chromeOptions': {
       prefs: {
         'download.default_directory': 'your-temporary-folder'
       }
@@ -39,7 +39,7 @@ config.capabilities = [
 ``` 
 
 ##### Firefox profile settings
-Firefox needs to load a profile with all the settings. This can be done by using the [WebdriverIO Firefox profile service](http://v4.webdriver.io/guide/services/firefox-profile.html).
+Firefox needs to load a profile with all the settings. This can be done by using the [WebdriverIO Firefox profile service](https://webdriver.io/docs/firefox-profile-service.html).
 When the service is installed it can be used like this
 
 ```js
@@ -62,23 +62,30 @@ config.capabilities = [
 ``` 
 
 ## Uploading files
-Testing uploading files from a local machine isn't that compled in comparison to testing it from a cloud solution like for example.
-There are some ways to do that, more info can be found here [Uploading Files to a Sauce Labs Virtual Machine during a Test](https://support.saucelabs.com/hc/en-us/articles/115003685593-Uploading-Files-to-a-Sauce-Labs-Virtual-Machine-during-a-Test), but it will also be explained below.
+Testing uploading files from a local machine isn't that complicated in comparison to testing it from a cloud solution.
+There are 2 ways to do this. First of all WebdriverIO has the method called [`uploadFile`](https://webdriver.io/docs/api/browser/uploadFile.html), see also this [blogpost](https://webdriver.io/blog/2019/06/25/file-upload.html).
 
-### Pre-run executable
-A Sauce Labs VM starts in a clean state, meaning there is no data on the machine. To be able to test uploading files there needs to be a example file on the Sauce Labs VM.
+> **NOTE:<br>**
+> Keep in mind that this is only working for Chrome
+
+If you want to test is with multiple browsers then you have a different way to do that, see also [Uploading Files to a Sauce Labs Virtual Machine during a Test](https://support.saucelabs.com/hc/en-us/articles/115003685593-Uploading-Files-to-a-Sauce-Labs-Virtual-Machine-during-a-Test), but it will also be explained [here](#pre-run-executable-for-more-browsers).
+
+### Chrome with `uploadFile`
+Please read this [blog post](https://webdriver.io/docs/api/browser/uploadFile.html), see also this [blogpost](https://webdriver.io/blog/2019/06/25/file-upload.html) for more information and check [this](./tests/specs/sauce.chrome.upload.spec.js) file on how to script it.
+
+### Pre-run executable for more browsers
+A Sauce Labs VM starts in a clean state, meaning there is no data on the machine. To be able to test uploading files there needs to be an example file on the Sauce Labs VM.
 
 Sauce Labs provides a way to upload a file to a Sauce Labs virtual machine prior to testing that can be used for testing uploads. This can be done with a *pre-run executable*. More info can be found here [Downloading Files to a Sauce Labs Virtual Machine Prior to Testing](https://wiki.saucelabs.com/display/DOCS/Downloading+Files+to+a+Sauce+Labs+Virtual+Machine+Prior+to+Testing)
 
-> **NOTE:** If you want to download a file that is only accessible on your network, this won't work even if you have Sauce Connect running. This is because the connection from the VM to your network is limited only to the browsers and doesn't work on all outbound connections
+> **NOTE:<br>** If you want to download a file that is only accessible on your network, this won't work even if you have Sauce Connect running. This is because the connection from the VM to your network is limited only to the browsers and doesn't work on all outbound connections
 
-The pre-run executable should hold a script that can download a file from a public server a folder on the Sauce Labs virtual machine. 
+The pre-run executable should hold a script that can download a file from a public (ftp) server to a folder on the Sauce Labs virtual machine. 
 
 #### Create a script
-Each platform needs to have it's own script Sauce Labs provides 3 different platforms, see all the links to see how the scripts should look like
+Each platform needs to have it's own script Sauce Labs provides 2 different platforms, see all the links to see how the scripts should look like
 
 - Windows* [script](./scripts/windows_download.bat)
-- Linux [script](./scripts/linux_download.sh)
 - Mac [script](./scripts/mac_download.sh)
 
 > *Windows uses `%userprofile%` because Chrome and Firefox VM-images have a different root user (*Administrator*) in comparison to the MicrosoftEdge and internet explorer (*sauce*).
@@ -91,7 +98,7 @@ This is a temporary private storage space where all assets are cleared after sev
 Advice is to upload all the pre-run executables in one call. This can be done by creating  1 script that will be ran before WebdriverIO starts and can be found [here](./scripts/push_to_storage.sh). 
 When the test command `npm run test` will be used the script will upload all the pre-run executables as a preprocess before all tests are executed.
 
-> **NOTE:** The [`push_to_storage.sh`](./scripts/push_to_storage.sh)-script in this repo are used and made for a Mac, check the platform you are using and create your own script  
+> **NOTE:<br>** The [`push_to_storage.sh`](./scripts/push_to_storage.sh)-script in this repo is used and made for a Mac, check the platform you are using and create your own script  
 
 #### Add script to capabilities
 When the scripts are stored in the Sauce Storage the capabilities need to be enriched with the `prerun` capability, see the example below  
@@ -100,10 +107,15 @@ When the scripts are stored in the Sauce Storage the capabilities need to be enr
 capabilities: [
     {
         browserName: 'chrome',
-        platform: 'Windows 10',
-        // This is the `prerun` capability that needs to point to the 
-        // platform specific script
-        prerun: 'sauce-storage:windows_download.bat',
+        platformName: 'Windows 10',
+        // Because WebdriverIO is W3C compliant by default you need to provide Sauce options,
+        // see https://wiki.saucelabs.com/display/DOCS/Selenium+W3C+Capabilities+Support
+        'sauce:options': {
+            seleniumVersion: '3.141.59',
+            // This is the `prerun` capability that needs to point to the 
+            // platform specific script
+            prerun: 'sauce-storage:windows_download.bat',
+        },
     },
 ] 
 ```
@@ -123,7 +135,7 @@ The pre-run executable will download the file before the tests starts and stores
         $ npm install
     
 ### Local Download Test
-> **NOTE:**
+> **NOTE:<br>**
 > Make sure you have Chrome and Firefox installed on you local machine
 
 Run the following command
@@ -133,7 +145,7 @@ Run the following command
 This will run the local download test, which can be found [here](./tests/specs/local.download.spec.js), on Chrome and Firefox.
     
 ### Sauce Labs Download Test
-> **NOTE:**
+> **NOTE:<br>**
 > Make sure the `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` are set as environment variables. They will be used for uploading and test execution.
 
 Run the following command
@@ -149,15 +161,12 @@ This will run the sauce download test, which can be found [here](./tests/specs/s
   - Chrome
   - Firefox
   - Safari
-- Linux
-  - Chrome
-  - Firefox 
 
 > In this testcase we found a way to verify that the file has been downloaded.
  
     
 ### Local Download Test
-> **NOTE:**
+> **NOTE:<br>**
 > Make sure you have Chrome and Firefox installed on you local machine
 
 Run the following command
@@ -166,8 +175,18 @@ Run the following command
 
 This will run the local download test, which can be found [here](./tests/specs/local.upload.spec.js), on Chrome and Firefox.
 
-### Sauce Labs Upload Test
-> **NOTES:** 
+### Sauce Labs Upload Test for Chrome with `uploadFile`
+> **NOTEs:<br>** 
+> Make sure the `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` are set as environment variables. They will be used for uploading and test execution.
+
+Run the following command
+  
+    $ npm run test.sauce.chrome.upload
+
+This will run the upload test, which can be found [here](./tests/specs/sauce.chrome.upload.spec.js) **only on Chrome**.
+
+### Sauce Labs Upload Test for more browsers
+> **NOTEs:<br>** 
 > Make sure the `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` are set as environment variables. They will be used for uploading and test execution.
 
 > Keep in mind that [`push_to_storage.sh`](./scripts/push_to_storage.sh)-script in this repo are used and made for a Mac, check the platform you are using and create your own script
@@ -176,7 +195,7 @@ Run the following command
   
     $ npm run test.sauce.upload
 
-This will run the upload test, which can be found [here](./tests/specs/sauce.upload.spec.js), on all 9 different browser and OS combinations
+This will run the upload test, which can be found [here](./tests/specs/sauce.upload.spec.js), on all 7 different browser and OS combinations
 
 - Windows:
   - Chrome
@@ -186,7 +205,4 @@ This will run the upload test, which can be found [here](./tests/specs/sauce.upl
 - Mac:
   - Chrome
   - Firefox
-  - Safari
-- Linux
-  - Chrome
-  - Firefox    
+  - Safari   

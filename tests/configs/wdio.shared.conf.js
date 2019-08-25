@@ -3,6 +3,11 @@
  * The rest of the files will extend options
  */
 exports.config = {
+  // ====================
+  // Runner Configuration
+  // ====================
+  runner: 'local',
+
   // ===================
   // Test Configurations
   // ===================
@@ -10,7 +15,6 @@ exports.config = {
   logLevel: 'silent',
   coloredLogs: true,
   deprecationWarnings: true,
-  screenshotPath: './.tmp/errorShots/',
   baseUrl: 'https://the-internet.herokuapp.com/',
   waitforTimeout: 10000,
   connectionRetryTimeout: 90000,
@@ -28,7 +32,7 @@ exports.config = {
   // =====
   // Hooks
   // =====
-  beforeSession: (config, capabilities, specs) => {
-    require('babel-register');
+  beforeSession: (c) => {
+    require('@babel/register');
   },
 };

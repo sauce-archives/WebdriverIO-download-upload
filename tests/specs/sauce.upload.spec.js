@@ -6,7 +6,7 @@ describe('Uploading files', () => {
     // 1a.  Load the browser
     browser.url('/upload');
     // 1b.  Set the browser to a smaller screen just for watching
-    browser.windowHandleSize({ width: 640, height: 480 });
+    browser.setWindowSize(640, 480);
 
     // 2a.  Upload the file by adding the location to the file on the machine,
     //      The path and file CAN'T be joined with NodeJS version of `join` because
@@ -18,7 +18,7 @@ describe('Uploading files', () => {
     $('#file-submit').click();
 
     // 3a.  Wait for the text to be visible, we are now validating it with the uploaded file container to be visible
-    $('#uploaded-files').waitForVisible(15000);
+    $('#uploaded-files').waitForDisplayed(15000);
     // 3b.  Do the verification
     expect($('#uploaded-files').getText()).toContain(fileName);
   });

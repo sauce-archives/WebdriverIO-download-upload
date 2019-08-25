@@ -14,7 +14,7 @@ describe('Uploading files', () => {
     $('#file-submit').click();
 
     // 3a.  Wait for the text to be visible, we are now validating it with the uploaded file container to be visible
-    $('#uploaded-files').waitForVisible(15000);
+    $('#uploaded-files').waitForDisplayed(15000);
     // 3b.  Do the verification
     expect($('#uploaded-files').getText()).toContain(fileName);
   });

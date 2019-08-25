@@ -7,6 +7,9 @@ const { URL } = require('url');
 
 describe('Downloads', () => {
   it('should download and verify the file', () => {
+    // Get the base url
+    const baseURL = browser.config.baseUrl;
+
     // Go to the correct page for testing the download functionality
     browser.url('./download');
 
@@ -18,7 +21,11 @@ describe('Downloads', () => {
     downloadLink.click();
 
     // Get the value of the 'href' attibute on the download link
-    const downloadHref = downloadLink.getAttribute('href');
+    let downloadHref = downloadLink.getAttribute('href');
+
+    if (!downloadHref.includes(baseURL)) {
+      downloadHref = new URL(downloadHref, baseURL);
+    }
 
     // Pass through Node's `URL` class
     // @see https://nodejs.org/dist/latest-v8.x/docs/api/url.html
