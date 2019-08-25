@@ -1,6 +1,6 @@
 const { ensureDirSync, removeSync } = require('fs-extra');
 const { join } = require('path');
-const config = require('./wdio.shared.conf').config;
+const { config } = require('./wdio.shared.conf');
 
 // Store the directory path in a global, which allows to access this path inside the tests
 global.downloadDir = {
@@ -36,7 +36,7 @@ config.capabilities = [
   {
     browserName: 'chrome',
     // this overrides the default chrome download directory with our temporary one
-    chromeOptions: {
+    'goog:chromeOptions': {
       prefs: {
         'download.default_directory': global.downloadDir.chrome
       }

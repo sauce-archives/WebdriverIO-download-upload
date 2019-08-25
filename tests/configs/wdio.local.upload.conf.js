@@ -1,4 +1,4 @@
-const config = require('./wdio.shared.conf').config;
+const { config } = require('./wdio.shared.conf');
 
 // ========
 // Services
