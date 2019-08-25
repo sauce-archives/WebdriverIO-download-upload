@@ -7,7 +7,8 @@
     "test.local.download": "./node_modules/.bin/wdio ./tests/configs/wdio.local.download.conf.js",
     "test.sauce.download": "./node_modules/.bin/wdio ./tests/configs/wdio.sauce.download.conf.js",
     "test.local.upload": "./node_modules/.bin/wdio ./tests/configs/wdio.local.upload.conf.js",
-    "test.sauce.upload": "./scripts/push_to_storage.sh && ./node_modules/.bin/wdio ./tests/configs/wdio.sauce.upload.conf.js"
+    "test.sauce.upload": "./scripts/push_to_storage.sh && ./node_modules/.bin/wdio ./tests/configs/wdio.sauce.upload.conf.js",
+    "test.sauce.chrome.upload": "./node_modules/.bin/wdio ./tests/configs/wdio.sauce.chrome.upload.conf.js"
   },
   "keywords": [
     "upload",
